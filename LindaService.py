@@ -1,6 +1,7 @@
 # Author: Benito Buchheim
 
 import pickle
+import os.path
 
 class Service(object):
 
@@ -33,15 +34,37 @@ class Trigger(object):
     def isTriggered(self):
         return False
 
-class DeviationTrigger(Trigger):
+class DeviationTriggerConstantFromFile(Trigger):
 
-    def __init__(self, threshold):
+    def __init__(self, normal, threshold, datafile):
         super.__init__()
 
+        self.normal = normal
         self.threshold = threshold
+        self.datafile = datafile
+
+    def loadCurrent(self):
+        """Return the current value from datafile."""
+        if not os.path.exists(self.datafile):
+            print("[DeviationTriggerConstantFromFile] datafile does not exist")
+            return -1
+
+        with open(self.datafile, 'r') as f:
+            content = f.read().strip()
+
+            try:
+                content = float(content)
+            except ValueError, e:
+                print("[DeviationTriggerConstantFromFile] could not load datafile")
+                print(e)
+                return -1
 
     def isTriggered(self):
         """Triggers on deviation"""
+        
+        if abs(self.loadCurrent() - self.normal) >= self.threshold:
+            return True
+
         return False
 
 class Action(object):
