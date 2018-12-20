@@ -1,6 +1,11 @@
+# Author: Benito Buchheim
+
+import pickle
+
 class Service(object):
 
-    def __init__(self, trigger=None, action=None):
+    def __init__(self, name, trigger=None, action=None):
+        self.name = name
         self.trigger = trigger
         self.action = action
 
@@ -9,6 +14,19 @@ class Service(object):
     
     def setAction(self, action):
         self.action = action
+
+    def check(self):
+        """Check whether trigger is active and fire action if so."""
+        if not (self.trigger and self.action):
+            return
+
+        if self.trigger.isTriggered():
+            self.action.trigger()
+
+    def save(self, filepath):
+        """Save service to filepath"""
+        with open(filepath, 'w') as f:
+            pickle.dump(self, f)
 
 class Trigger(object):
 
@@ -42,3 +60,9 @@ class MailAction(Action):
 
     def trigger(self):
         """Send E-Mail to recipients."""
+        print("Sending E-Mail")
+
+if __name__ == "__main__":
+    # generate a sample service
+    service = Service("sample_service")
+    service.save("data/sample_service.lise")
