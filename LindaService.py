@@ -34,19 +34,25 @@ class Trigger(object):
     def isTriggered(self):
         return False
 
-class DeviationTriggerConstantFromFile(Trigger):
+class DeviationTriggerTwoThresholds(Trigger):
 
-    def __init__(self, normal, threshold, datafile):
+    def __init__(self, triggerThreshold, resetThreshold, datafile):
         super.__init__()
 
-        self.normal = normal
-        self.threshold = threshold
+        # triggerThreshold is the Threshold which has to be reached to start the trigger
+        # (then triggers once and waits to return below resetThreshold)
+        # Direction is calculated from both triggers so you can set up the trigger to fire
+        # when the value rises above or falls below a certain threshold
+        self.triggerThreshold = triggerThreshold
+        self.resetThreshold = resetThreshold
+
+        # the filepath where the input data will be stored
         self.datafile = datafile
 
     def loadCurrent(self):
         """Return the current value from datafile."""
         if not os.path.exists(self.datafile):
-            print("[DeviationTriggerConstantFromFile] datafile does not exist")
+            print("[DeviationTriggerTwoThresholds] datafile does not exist")
             return -1
 
         with open(self.datafile, 'r') as f:
@@ -54,16 +60,20 @@ class DeviationTriggerConstantFromFile(Trigger):
 
             try:
                 content = float(content)
+                return content
             except ValueError, e:
-                print("[DeviationTriggerConstantFromFile] could not load datafile")
+                print("[DeviationTriggerTwoThresholds] could not load datafile")
                 print(e)
                 return -1
+
+        return -1
 
     def isTriggered(self):
         """Triggers on deviation"""
         
-        if abs(self.loadCurrent() - self.normal) >= self.threshold:
-            return True
+        # check if value exceeds triggers
+        # and only trigger when trigger hasn't fired yet
+        # otherwise wait for it to return back to reset threshold
 
         return False
 
