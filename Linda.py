@@ -10,19 +10,21 @@ import logging
 DATAPATH = "data/"
 CONFIGFILE = "lindaconfig.ini"
 
+# SETUP LOGGING
+log = logging.getLogger()
+logHandler = logging.StreamHandler()
+
+logFormatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
+logHandler.setFormatter(logFormatter)
+log.addHandler(logHandler)
+
+log.setLevel(logging.DEBUG)
+
 class Linda(object):
 
     def __init__(self, configfile):
-        self.log = logging.getLogger()
-        self.logHandler = logging.StreamHandler()
         
-        self.logFormatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
-        self.logHandler.setFormatter(self.logFormatter)
-        self.log.addHandler(self.logHandler)
-
-        self.log.setLevel(logging.DEBUG)
-
-        self.log.info("Linda initializing")
+        log.info("Linda initializing")
 
         self.services = []
         self.configfile = configfile
@@ -32,20 +34,20 @@ class Linda(object):
         self.loadServices()
 
     def readConfig(self):
-        self.log.debug("Reading configuration files")
+        log.debug("Reading configuration files")
         config = configparser.ConfigParser()
         config.read(self.configfile)
 
         # get datapath config
         self.datapath = config.get("DEFAULT", "datapath", fallback="data")
         # check if directory exists and create if not
-        self.log.debug("Checking if datapath exists")
+        log.debug("Checking if datapath exists")
         if not os.path.exists(self.datapath):
-            self.log.debug("Creating directory for datapath")
+            log.debug("Creating directory for datapath")
             os.mkdir(self.datapath)
 
     def loadServices(self):
-        self.log.debug("Loading services from datapath")
+        log.debug("Loading services from datapath")
         self.services = []
 
         # iterate through all services and add to list
@@ -54,13 +56,13 @@ class Linda(object):
                 continue
 
             # load the service and add to services
-            self.log.debug("Adding service: %s", filename)
+            log.debug("Adding service: %s", filename)
             with open(os.path.join(self.datapath, filename), 'r') as f:
                 self.services.append(pickle.load(f))
 
     def checkAll(self):
         # checks through all services and triggers
-        self.log.debug("Checking all services")
+        log.debug("Checking all services")
         for service in self.services:
             self.check(service)
 
@@ -72,7 +74,7 @@ class Linda(object):
 
         # TO-DO: This function probably should be moved to the LindaHelper
 
-        self.log.debug("Removing service with name")
+        log.debug("Removing service with name")
         
         for filename in os.listdir(self.datapath):
             if not filename.endswith(".lise"):
