@@ -69,6 +69,9 @@ class Linda(object):
 
     def removeServiceWithName(self, serviceName):
         """Remove all services with given name."""
+
+        # TO-DO: This function probably should be moved to the LindaHelper
+
         self.log.debug("Removing service with name")
         
         for filename in os.listdir(self.datapath):
