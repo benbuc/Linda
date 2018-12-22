@@ -103,12 +103,31 @@ class DeviationTriggerTwoThresholds(Trigger):
 
         return -1
 
+    def getState(self):
+        """Get the current state from file"""
+        # State can be:
+        #   - wait_for_threshold
+        #   - wait_for_reset
+        # If the files is empty or does not exist it will return wait_for_threshold
+
+        log.debug("Loading trigger state")
+        filepath = os.path.join(self.datapath, self.name+".triggerstate")
+
+        if not os.path.exists(filepath):
+            log.debug("Trigger state file does not exist: %s", filepath)
+            return "wait_for_threshold"
+        
+        try:
+            state = pickle.load # currently trying to load state from file
+
     def isTriggered(self):
         """Triggers on deviation"""
         
         # check if value exceeds triggers
         # and only trigger when trigger hasn't fired yet
         # otherwise wait for it to return back to reset threshold
+
+        state = self.getState():
 
         return False
 
