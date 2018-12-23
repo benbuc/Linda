@@ -5,20 +5,13 @@ import pickle
 import os
 import os.path
 import configparser
-import logging
+import utilities
 
 DATAPATH = "data/"
 CONFIGFILE = "lindaconfig.ini"
 
 # SETUP LOGGING
-log = logging.getLogger()
-logHandler = logging.StreamHandler()
-
-logFormatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
-logHandler.setFormatter(logFormatter)
-log.addHandler(logHandler)
-
-log.setLevel(logging.DEBUG)
+log = utilities.getLogger()
 
 class Linda(object):
 

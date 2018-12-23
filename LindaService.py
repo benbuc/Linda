@@ -2,17 +2,10 @@
 
 import pickle
 import os.path
-import logging
+import utilities
 
 # generate the logger
-log = logging.getLogger()
-logHandler = logging.StreamHandler()
-
-logFormatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
-logHandler.setFormatter(logFormatter)
-log.addHandler(logHandler)
-
-log.setLevel(logging.DEBUG)
+log = utilities.getLogger()
 
 class Service(object):
 
@@ -70,7 +63,7 @@ class Trigger(object):
 class DeviationTriggerTwoThresholds(Trigger):
 
     def __init__(self, datapath, name, **kwargs):
-        super.__init__(datapath, name, kwargs)
+        super(DeviationTriggerTwoThresholds, self).__init__(datapath, name, **kwargs)
 
         ########################################
         # COPY ARGUMENTS TO INSTANCE VARIABLES #
@@ -194,5 +187,7 @@ class MailAction(Action):
 
 if __name__ == "__main__":
     # generate a sample service
-    service = Service("data", "sample_service")
-    service.save()
+    serv = Service("data", "temperature_service")
+    tr = DeviationTriggerTwoThresholds("data", "temperature_service", trigger_threshold=35.0, reset_threshold=38.0, datafile="temp/temperature.txt")
+    act = Action()
+
