@@ -79,4 +79,4 @@ class Linda(object):
 
 if __name__ == "__main__":
     linda = Linda(CONFIGFILE)
-    
+    linda.checkAll()

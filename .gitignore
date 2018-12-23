@@ -2,6 +2,7 @@
 temp/
 .vscode
 data/
+lindaconfig.ini
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

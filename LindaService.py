@@ -169,17 +169,23 @@ class DeviationTriggerTwoThresholds(Trigger):
 
 class Action(object):
 
+    def __init__(self, datapath, name, **kwargs):
+        self.datapath = datapath
+        self.name = name
+        self.kwargs = kwargs
+
     def trigger(self):
         print("Action triggered")
 
 class MailAction(Action):
     """When triggered, it sends an E-Mail to the given recipients."""
 
-    def __init__(self, recipients, content):
-        super.__init__()
+    def __init__(self, datapath, name, **kwargs):
+        super(MailAction, self).__init__(datapath, name, **kwargs)
 
-        self.recipients = recipients
-        self.content = content
+        self.recipients = self.kwargs["recipients"]
+        self.subject = self.kwargs["subject"]
+        self.content = self.kwargs["content"]
 
     def trigger(self):
         """Send E-Mail to recipients."""
@@ -189,5 +195,4 @@ if __name__ == "__main__":
     # generate a sample service
     serv = Service("data", "temperature_service")
     tr = DeviationTriggerTwoThresholds("data", "temperature_service", trigger_threshold=35.0, reset_threshold=38.0, datafile="temp/temperature.txt")
-    act = Action()
 
