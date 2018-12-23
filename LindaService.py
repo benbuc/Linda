@@ -103,6 +103,9 @@ class DeviationTriggerTwoThresholds(Trigger):
 
         return -1
 
+    def getStateFilepath(self):
+        return os.path.join(self.datapath, self.name+".triggerstate")
+
     def getState(self):
         """Get the current state from file"""
         # State can be:
@@ -111,14 +114,36 @@ class DeviationTriggerTwoThresholds(Trigger):
         # If the files is empty or does not exist it will return wait_for_threshold
 
         log.debug("Loading trigger state")
-        filepath = os.path.join(self.datapath, self.name+".triggerstate")
+        filepath = self.getStateFilepath()
 
         if not os.path.exists(filepath):
             log.debug("Trigger state file does not exist: %s", filepath)
             return "wait_for_threshold"
         
-        try:
-            state = pickle.load # currently trying to load state from file
+        with open(filepath, 'r') as f:
+            state = pickle.load(f)
+            return state
+
+    def setState(self, state):
+        """Set the current trigger state in file"""
+        # See getState for further information
+
+        log.debug("Setting trigger state")
+        filepath = self.getStateFilepath()
+
+        if not state in ["wait_for_threshold", "wait_for_reset"]:
+            log.error("Unknown trigger state: %s", state)
+            return
+
+        if not os.path.exists(self.datapath):
+            log.debug("Datapath does not exist")
+            return
+
+        with open(filepath, 'w') as f:
+            pickle.dump(state, f)
+        
+        log.debug("Saved state")
+        
 
     def isTriggered(self):
         """Triggers on deviation"""
@@ -127,7 +152,25 @@ class DeviationTriggerTwoThresholds(Trigger):
         # and only trigger when trigger hasn't fired yet
         # otherwise wait for it to return back to reset threshold
 
-        state = self.getState():
+        state = self.getState()
+
+        # calculate the direction the current value has to pass the threshold
+        if self.triggerThreshold < self.resetThreshold:
+            # direction is fall
+            if state == "wait_for_threshold" and self.loadCurrent() <= self.triggerThreshold:
+                self.setState("wait_for_reset")
+                return True
+            elif state == "wait_for_reset" and self.loadCurrent() >= self.resetThreshold:
+                self.setState("wait_for_threshold")
+        elif self.triggerThreshold > self.resetThreshold:
+            # direction is rise
+            if state == "wait_for_threshold" and self.loadCurrent() >= self.triggerThreshold:
+                self.setState("wait_for_reset")
+                return True
+            elif state == "wait_for_reset" and self.loadCurrent() >= self.resetThreshold:
+                self.setState("wait_for_threshold")
+        else:
+            log.warning("Trigger and Reset threshold are equal in: %s", self.name)
 
         return False
 
