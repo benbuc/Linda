@@ -3,9 +3,15 @@
 import pickle
 import os.path
 import utilities
+import configparser
+import smtplib
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEText import MIMEText
 
 # generate the logger
 log = utilities.getLogger()
+
+CONFIGFILE = "lindaconfig.ini"
 
 class Service(object):
 
@@ -187,12 +193,50 @@ class MailAction(Action):
         self.subject = self.kwargs["subject"]
         self.content = self.kwargs["content"]
 
+    def getConfig(self):
+        """Returns the server, user and password."""
+
+        log.debug("Getting config")
+
+        config = configparser.ConfigParser()
+        config.read(CONFIGFILE)
+
+        server = config.get("MAIL", "server")
+        port = int(config.get("MAIL", "port"))
+        user = config.get("MAIL", "user")
+        password = config.get("MAIL", "pass")
+
+        return (server, port, user, password)
+
     def trigger(self):
         """Send E-Mail to recipients."""
-        print("Sending E-Mail")
+        
+        server, port, user, password = self.getConfig()
+
+        log.debug("Constructing E-Mail")
+        msg = MIMEMultipart()
+        msg['From'] = user
+        msg['To'] = ", ".join(self.recipients)
+        msg['Subject'] = self.subject
+
+        msg.attach(MIMEText(self.content, 'plain'))
+
+        log.debug("Connecting to server")
+
+        conn = smtplib.SMTP(server, port)
+        conn.starttls()
+        conn.login(user, password)
+
+        log.debug("Sending Mail")
+        conn.sendmail(user, self.recipients, msg.as_string())
+        conn.quit()
+        log.debug("Successfully sent Mail")
+
 
 if __name__ == "__main__":
     # generate a sample service
-    serv = Service("data", "temperature_service")
-    tr = DeviationTriggerTwoThresholds("data", "temperature_service", trigger_threshold=35.0, reset_threshold=38.0, datafile="temp/temperature.txt")
+    #serv = Service("data", "temperature_service")
+    #tr = DeviationTriggerTwoThresholds("data", "temperature_service", trigger_threshold=35.0, reset_threshold=38.0, datafile="temp/temperature.txt")
 
+    m = MailAction("data", "test_mail_action", recipients=["benitoalpha@buchheims.de"], subject="Testmail", content="Funktioniert!")
+    m.trigger()
