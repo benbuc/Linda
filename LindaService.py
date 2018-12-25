@@ -7,6 +7,7 @@ import configparser
 import smtplib
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
+import socket
 
 # generate the logger
 log = utilities.getLogger()
@@ -211,7 +212,14 @@ class MailAction(Action):
     def trigger(self):
         """Send E-Mail to recipients."""
         
-        server, port, user, password = self.getConfig()
+        try:
+            server, port, user, password = self.getConfig()
+        except configparser.NoOptionError as e:
+            log.error("Config file wrong: %s", e)
+            return
+        except ValueError:
+            log.error("Could not convert to integer")
+            return
 
         log.debug("Constructing E-Mail")
         msg = MIMEMultipart()
@@ -223,14 +231,24 @@ class MailAction(Action):
 
         log.debug("Connecting to server")
 
-        conn = smtplib.SMTP(server, port)
-        conn.starttls()
-        conn.login(user, password)
+        try:
+            conn = smtplib.SMTP(server, port)
+            conn.starttls()
+            conn.login(user, password)
+            log.debug("Sending Mail")
+            conn.sendmail(user, self.recipients, msg.as_string())
+            conn.quit()
+            log.debug("Successfully sent Mail")
 
-        log.debug("Sending Mail")
-        conn.sendmail(user, self.recipients, msg.as_string())
-        conn.quit()
-        log.debug("Successfully sent Mail")
+        except socket.gaierror:
+            log.error("SMTP Server name invalid")
+            return
+        except smtplib.SMTPAuthenticationError:
+            log.error("SMTP credentials invalid")
+            return
+        except Exception as e:
+            log.error("Unknown error while sending mail: %s", e)
+            return
 
 
 if __name__ == "__main__":
