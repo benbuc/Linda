@@ -7,8 +7,8 @@ import sys
 import os
 import os.path
 import configparser
-from LindaService import *
-from LindaGlobals import *
+import LindaService as lise
+from LindaGlobals import CONFIGFILE
 
 FIRST_ITERATION = True
 
@@ -112,7 +112,7 @@ def createNewService():
         return
     
     datapath = getDatapath()
-    service = Service(datapath, name)
+    service = lise.Service(datapath, name)
     service.setTrigger(trigger)
     service.setAction(action)
     service.save()
@@ -137,7 +137,7 @@ def setupDeviationTriggerTwoThresholds(datapath, name):
         "reset_threshold"   : resetThreshold,
         "datafile"          : datafile
     }
-    trigger = DeviationTriggerTwoThresholds(datapath, name, **kwargs)
+    trigger = lise.DeviationTriggerTwoThresholds(datapath, name, **kwargs)
 
     return trigger
 
@@ -158,7 +158,7 @@ def setupMailAction(datapath, name):
         "subject"       : subject,
         "content"       : content
     }
-    return MailAction(datapath, name, **kwargs)
+    return lise.MailAction(datapath, name, **kwargs)
 
     
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ import os
 import os.path
 import configparser
 import utilities
-from LindaGlobals import *
+from LindaGlobals import CONFIGFILE, DATAPATH
 
 # SETUP LOGGING
 log = utilities.getLogger()
@@ -60,21 +60,7 @@ class Linda(object):
     def check(self, service):
         service.check()
 
-    def removeServiceWithName(self, serviceName):
-        """Remove all services with given name."""
-
-        # TO-DO: This function probably should be moved to the LindaHelper
-
-        log.debug("Removing service with name")
-        
-        for filename in os.listdir(self.datapath):
-            if not filename.endswith(".lise"):
-                continue
-
-            with open(os.path.join(self.datapath, filename), 'r') as f:
-                if pickle.load(f).name == serviceName:
-                    os.remove(os.path.join(self.datapath, filename))
-
 if __name__ == "__main__":
+    # if Linda.py is executed normally, just run all services
     linda = Linda(CONFIGFILE)
     linda.checkAll()
