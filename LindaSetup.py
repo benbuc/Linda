@@ -8,7 +8,7 @@ import os
 import os.path
 import configparser
 import LindaService as lise
-from LindaGlobals import CONFIGFILE
+from LindaConfig import LindaConfig
 
 FIRST_ITERATION = True
 
@@ -44,8 +44,7 @@ def main():
         print("Unknown action")
 
 def getDatapath():
-    config = configparser.ConfigParser()
-    config.read(CONFIGFILE)
+    config = LindaConfig()
 
     # get datapath config
     datapath = config.get("DEFAULT", "datapath", fallback="data")

@@ -5,11 +5,13 @@ import os.path
 import utilities
 import configparser
 import smtplib
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
+#from email.MIMEMultipart import MIMEMultipart
+from email.mime import multipart
+from email.mime import text
+#from email.MIMEText import MIMEText
 import socket
 
-from LindaGlobals import CONFIGFILE
+from LindaConfig import LindaConfig
 
 # generate the logger
 log = utilities.getLogger()
@@ -199,8 +201,7 @@ class MailAction(Action):
 
         log.debug("Getting config")
 
-        config = configparser.ConfigParser()
-        config.read(CONFIGFILE)
+        config = LindaConfig()
 
         server = config.get("MAIL", "server")
         port = int(config.get("MAIL", "port"))
@@ -222,12 +223,12 @@ class MailAction(Action):
             return
 
         log.debug("Constructing E-Mail")
-        msg = MIMEMultipart()
+        msg = multipart.MIMEMultipart()
         msg['From'] = user
         msg['To'] = ", ".join(self.recipients)
         msg['Subject'] = self.subject
 
-        msg.attach(MIMEText(self.content, 'plain'))
+        msg.attach(text.MIMEText(self.content, 'plain'))
 
         log.debug("Connecting to server")
 

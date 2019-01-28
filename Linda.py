@@ -6,19 +6,18 @@ import os
 import os.path
 import configparser
 import utilities
-from LindaGlobals import CONFIGFILE, DATAPATH
+from LindaConfig import LindaConfig
 
 # SETUP LOGGING
 log = utilities.getLogger()
 
 class Linda(object):
 
-    def __init__(self, configfile):
+    def __init__(self):
         
         log.info("Linda initializing")
 
         self.services = []
-        self.configfile = configfile
 
         self.readConfig()
 
@@ -26,8 +25,7 @@ class Linda(object):
 
     def readConfig(self):
         log.debug("Reading configuration files")
-        config = configparser.ConfigParser()
-        config.read(self.configfile)
+        config = LindaConfig()
 
         # get datapath config
         self.datapath = config.get("DEFAULT", "datapath", fallback="data")
@@ -62,5 +60,5 @@ class Linda(object):
 
 if __name__ == "__main__":
     # if Linda.py is executed normally, just run all services
-    linda = Linda(CONFIGFILE)
+    linda = Linda()
     linda.checkAll()
