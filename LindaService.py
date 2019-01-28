@@ -9,10 +9,10 @@ from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 import socket
 
+from LindaGlobals import *
+
 # generate the logger
 log = utilities.getLogger()
-
-CONFIGFILE = "lindaconfig.ini"
 
 class Service(object):
 

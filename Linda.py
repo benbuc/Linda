@@ -6,9 +6,7 @@ import os
 import os.path
 import configparser
 import utilities
-
-DATAPATH = "data/"
-CONFIGFILE = "lindaconfig.ini"
+from LindaGlobals import *
 
 # SETUP LOGGING
 log = utilities.getLogger()

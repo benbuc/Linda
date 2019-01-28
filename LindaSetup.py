@@ -3,15 +3,18 @@
 # This Program is used to set up Linda
 # You can create new services or remove services
 
-CONFIGFILE = "lindaconfig.ini"
-
 import sys
 import os
 import os.path
 import configparser
 from LindaService import *
+from LindaGlobals import *
+
+FIRST_ITERATION = True
 
 def main():
+    raw_input("\nPress ENTER to continue:")
+    print("\n")
     print("")
     print("-"*50)
     print("What do you want to do?")
@@ -69,7 +72,7 @@ def removeService():
     datapath = getDatapath()
 
     for filename in os.listdir(datapath):
-        if filename.startswith(name):
+        if filename.startswith(name+"."):
             os.remove(os.path.join(datapath, filename))
 
     print("Done deleting service")
@@ -79,6 +82,9 @@ def createNewService():
     print("")
     print("Creating a new service")
     name = raw_input("Service name: ")
+    if "." in name:
+        print("! Name may not contain '.'")
+        return
     print("\nSelect a trigger type")
     print("\t[1] DeviationTriggerTwoThresholds")
     try:
@@ -157,5 +163,8 @@ def setupMailAction(datapath, name):
     
 if __name__ == "__main__":
     print("Hi, I am Linda. Have a great day")
-    while "pigs" != "fly":
-        main()
+    try:
+        while "pigs" != "fly":
+            main()
+    except KeyboardInterrupt:
+        print("\nBye")
