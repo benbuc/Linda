@@ -1,2 +1,2 @@
-pillow
-pytesseract
+configparser
+email

@@ -1,11 +1,11 @@
 # Author: Benito Buchheim
 
-from LindaService import *
 import pickle
 import os
 import os.path
 import configparser
 import utilities
+from LindaService import *
 from LindaConfig import LindaConfig
 
 # SETUP LOGGING
