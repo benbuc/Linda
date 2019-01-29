@@ -13,7 +13,7 @@ from LindaConfig import LindaConfig
 FIRST_ITERATION = True
 
 def main():
-    raw_input("\nPress ENTER to continue:")
+    input("\nPress ENTER to continue:")
     print("\n")
     print("")
     print("-"*50)
@@ -24,7 +24,7 @@ def main():
     print("\t[0] EXIT")
 
     try:
-        action = int(raw_input("Enter Action: "))
+        action = int(input("Enter Action: "))
     except ValueError:
         print("Invalid input!")
         return
@@ -66,7 +66,7 @@ def removeService():
     listServices()
 
     print("Input service name you wish to remove. This can NOT be undone.")
-    name = raw_input(": ")
+    name = input(": ")
 
     datapath = getDatapath()
 
@@ -80,14 +80,14 @@ def removeService():
 def createNewService():
     print("")
     print("Creating a new service")
-    name = raw_input("Service name: ")
+    name = input("Service name: ")
     if "." in name:
         print("! Name may not contain '.'")
         return
     print("\nSelect a trigger type")
     print("\t[1] DeviationTriggerTwoThresholds")
     try:
-        triggerType = int(raw_input(": "))
+        triggerType = int(input(": "))
     except ValueError:
         print("Invalid input")
         return
@@ -100,7 +100,7 @@ def createNewService():
     print("\nSelect an action type")
     print("\t[1] MailAction")
     try:
-        actionType = int(raw_input(": "))
+        actionType = int(input(": "))
     except ValueError:
         print("Invalid input")
         return
@@ -123,9 +123,9 @@ def setupDeviationTriggerTwoThresholds(datapath, name):
     hasData = False
     while not hasData:
         try:
-            triggerThreshold = float(raw_input("Trigger Threshold: "))
-            resetThreshold = float(raw_input("Reset Threshold: "))
-            datafile = raw_input("Path to your datafile: ")
+            triggerThreshold = float(input("Trigger Threshold: "))
+            resetThreshold = float(input("Reset Threshold: "))
+            datafile = input("Path to your datafile: ")
             hasData = True
         except ValueError:
             print("Invalid input. Please try again")
@@ -144,9 +144,9 @@ def setupMailAction(datapath, name):
     hasData = False
     while not hasData:
         try:
-            recipients = raw_input("Input recipients (comma separated): ")
-            subject = raw_input("Input subject: ")
-            content = raw_input("Content: ")
+            recipients = input("Input recipients (comma separated): ")
+            subject = input("Input subject: ")
+            content = input("Content: ")
             hasData = True
         except ValueError:
             print("Invalid input. Please try again")

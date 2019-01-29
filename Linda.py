@@ -3,7 +3,6 @@
 import pickle
 import os
 import os.path
-import configparser
 import utilities
 from LindaService import *
 from LindaConfig import LindaConfig
@@ -46,7 +45,7 @@ class Linda(object):
 
             # load the service and add to services
             log.debug("Adding service: %s", filename)
-            with open(os.path.join(self.datapath, filename), 'r') as f:
+            with open(os.path.join(self.datapath, filename), 'rb') as f:
                 self.services.append(pickle.load(f))
 
     def checkAll(self):

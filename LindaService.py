@@ -3,7 +3,7 @@
 import pickle
 import os.path
 import utilities
-import configparser
+import configparser as cp
 import smtplib
 #from email.MIMEMultipart import MIMEMultipart
 from email.mime import multipart
@@ -48,7 +48,7 @@ class Service(object):
         """Save service to filepath"""
         destination = os.path.join(self.datapath, self.name+".lise")
         log.debug("Saving service to %s", destination)
-        with open(os.path.join(self.datapath, self.name+".lise"), 'w') as f:
+        with open(os.path.join(self.datapath, self.name+".lise"), 'wb') as f:
             pickle.dump(self, f)
             
 class Trigger(object):
@@ -122,7 +122,7 @@ class DeviationTriggerTwoThresholds(Trigger):
             log.debug("Trigger state file does not exist: %s", filepath)
             return "wait_for_threshold"
         
-        with open(filepath, 'r') as f:
+        with open(filepath, 'rb') as f:
             state = pickle.load(f)
             return state
 
@@ -141,7 +141,7 @@ class DeviationTriggerTwoThresholds(Trigger):
             log.debug("Datapath does not exist")
             return
 
-        with open(filepath, 'w') as f:
+        with open(filepath, 'wb') as f:
             pickle.dump(state, f)
         
         log.debug("Saved state")
@@ -215,41 +215,42 @@ class MailAction(Action):
         
         try:
             server, port, user, password = self.getConfig()
-        except configparser.NoOptionError as e:
+        except cp.NoOptionError as e:
             log.error("Config file wrong: %s", e)
             return
         except ValueError:
             log.error("Could not convert to integer")
             return
 
-        log.debug("Constructing E-Mail")
-        msg = multipart.MIMEMultipart()
-        msg['From'] = user
-        msg['To'] = ", ".join(self.recipients)
-        msg['Subject'] = self.subject
+        for recipient in self.recipients.split(","):
+            log.debug("Constructing E-Mail for %s" % (recipient.strip()))
+            msg = multipart.MIMEMultipart()
+            msg['From'] = user
+            msg['To'] = recipient.strip()
+            msg['Subject'] = self.subject
 
-        msg.attach(text.MIMEText(self.content, 'plain'))
+            msg.attach(text.MIMEText(self.content, 'plain'))
 
-        log.debug("Connecting to server")
+            log.debug("Connecting to server")
 
-        try:
-            conn = smtplib.SMTP(server, port)
-            conn.starttls()
-            conn.login(user, password)
-            log.debug("Sending Mail")
-            conn.sendmail(user, self.recipients, msg.as_string())
-            conn.quit()
-            log.debug("Successfully sent Mail")
+            try:
+                conn = smtplib.SMTP(server, port)
+                conn.starttls()
+                conn.login(user, password)
+                log.debug("Sending Mail")
+                conn.sendmail(user, recipient.strip(), msg.as_string())
+                conn.quit()
+                log.debug("Successfully sent Mail")
 
-        except socket.gaierror:
-            log.error("SMTP Server name invalid")
-            return
-        except smtplib.SMTPAuthenticationError:
-            log.error("SMTP credentials invalid")
-            return
-        except Exception as e:
-            log.error("Unknown error while sending mail: %s", e)
-            return
+            except socket.gaierror:
+                log.error("SMTP Server name invalid")
+                return
+            except smtplib.SMTPAuthenticationError:
+                log.error("SMTP credentials invalid")
+                return
+            except Exception as e:
+                log.error("Unknown error while sending mail: %s", e)
+                return
 
 
 if __name__ == "__main__":
