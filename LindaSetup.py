@@ -71,11 +71,16 @@ def removeService():
 
     datapath = getDatapath()
 
+    deletions = 0
     for filename in os.listdir(datapath):
         if filename.startswith(name+"."):
+            deletions += 1
             os.remove(os.path.join(datapath, filename))
 
-    print("Done deleting service")
+    if deletions > 0:
+        print("Done deleting service %s" % name)
+    else:
+        print("No service found with name %s" % name)
 
 
 def createNewService():
