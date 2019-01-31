@@ -1,3 +1,0 @@
-# Linda
-
-## Anforderungen
