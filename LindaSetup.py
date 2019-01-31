@@ -13,6 +13,8 @@ from LindaConfig import LindaConfig
 
 FIRST_ITERATION = True
 
+log = utilities.getLogger()
+
 def main():
     input("\nPress ENTER to continue:")
     print("\n")
@@ -45,13 +47,15 @@ def main():
         print("Unknown action")
 
 def getDatapath():
+    log.debug("Getting datapath from config")
     config = LindaConfig()
 
     # get datapath config
     datapath = config.get("DEFAULT", "datapath", fallback="data")
     # check if directory exists and create if not
     if not os.path.exists(datapath):
-        os.mkdir(datapath)#
+        log.debug("Creating datapath directory")
+        os.mkdir(datapath)
 
     return datapath
 
@@ -75,6 +79,7 @@ def removeService():
     for filename in os.listdir(datapath):
         if filename.startswith(name+"."):
             deletions += 1
+            log.debug("Deleting %s" % filename)
             os.remove(os.path.join(datapath, filename))
 
     if deletions > 0:
