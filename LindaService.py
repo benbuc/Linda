@@ -5,10 +5,8 @@ import os.path
 import utilities
 import configparser as cp
 import smtplib
-#from email.MIMEMultipart import MIMEMultipart
 from email.mime import multipart
 from email.mime import text
-#from email.MIMEText import MIMEText
 import socket
 
 from LindaConfig import LindaConfig

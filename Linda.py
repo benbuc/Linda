@@ -53,11 +53,14 @@ class Linda(object):
         log.debug("Checking all services")
         for service in self.services:
             self.check(service)
+        log.debug("Done checking all services")
 
     def check(self, service):
         service.check()
 
 if __name__ == "__main__":
+    # version check
+    utilities.checkVersion()
     # if Linda.py is executed normally, just run all services
     linda = Linda()
     linda.checkAll()

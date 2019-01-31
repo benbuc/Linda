@@ -2,6 +2,8 @@
 
 # This file holds utility functions for Linda
 import logging
+import sys
+
 def getLogger():
     log = logging.getLogger()
     logHandler = logging.StreamHandler()
@@ -13,3 +15,10 @@ def getLogger():
     log.setLevel(logging.DEBUG)
 
     return log
+
+log = getLogger()
+
+def checkVersion():
+    if sys.version_info.major < 3:
+        log.error("Python 2 detected. Try running with 'python3 %s'" % sys.argv[0])
+        exit()

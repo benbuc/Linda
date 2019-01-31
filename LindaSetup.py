@@ -7,6 +7,7 @@ import sys
 import os
 import os.path
 import configparser
+import utilities
 import LindaService as lise
 from LindaConfig import LindaConfig
 
@@ -161,6 +162,7 @@ def setupMailAction(datapath, name):
 
     
 if __name__ == "__main__":
+    utilities.checkVersion()
     print("Hi, I am Linda. Have a great day")
     try:
         while "pigs" != "fly":
