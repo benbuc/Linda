@@ -1,18 +1,45 @@
 # LINDA
 
 ## Installation Instructions
-1. Execute Linda.py as often as you want.
-	- e.g.: using a cronjob every minute
-	- Linda generates logging output. Be sure to reroute it to something useful or to a null device
-2.	Setup the Services using LindaSetup.py
-	- Linda will guide you through the process.
-3. Configfile anpassen:
-	- Datei `configsample.ini` in `lindaconfig.ini` umbenennen.
-	- Korrekte Daten eintragen
-	
-## CHANGELOG
-### Version 0.1
-- Existing Triggers:
-	- DeviationTriggerTwoThresholds
-- Existing Actions:
-	- MailAction
+
+1. Download Linda: `git clone https://www.github.com/benbuc/Linda.git`
+
+2. Rename `configsample.ini` to `lindaconfig.ini`: `mv configsample.ini lindaconfig.ini`
+
+3. Put in your E-Mail Data and Settings into `lindaconfig.ini`
+4. Execute `Linda.py` as often as you want: `python3 Linda.py`. You could - for example - use a cronjob to run Linda every minute.
+
+5. Setup your Services using `LindaSetup.py` by running: `python3 LindaSetup.py`. Linda will do her best to guide you through the process.
+
+## `Service`
+
+## `Trigger`
+A Trigger implements a checker. You can ask the Trigger whether it is triggered.
+
+
+| Method          | Description                              |
+|-----------------|------------------------------------------|
+| `isTriggered()` | will return a boolean                    |
+
+| Init Variable   | Description                              |
+|-----------------|----------------------------------------- |
+| `datapath` | The path where the Trigger is allowed to save data it needs for the future |
+| `name`          | a unique name for the Trigger            |
+
+### `DeviationTriggerTwoThresholds`
+The `DeviationTriggerTwoThresholds` checks whether a given value exceeds the threshold (trigger threshold) and then triggers once. It then does not trigger again until the value crossed the reset threshold.
+
+These methods usually should not be called from outside the Trigger, but are explained here for reference.
+
+| Method          | Description                              |
+|-----------------|------------------------------------------|
+| `loadCurrent()` | Tries to read the current value from `datafile` and returns it
+| `getStateFilepath()` | Assembles filepath for file holding the current trigger state
+| `getState()`    | Loads the current trigger state from file |
+| `setState()`    | Saves the current trigger state to file |
+
+| Init Variable   | Description                              |
+|-----------------|------------------------------------------|
+| `trigger_threshold` | The threshold which has to be crossed (in direction from `reset_threshold` for the trigger to fire |
+| `reset_threshold` | when fired, trigger becomes active again, when the reset threshold is crossed again, to prevent triggering multiple times |
+| `datafile`      | The filepath where the input data will be stores. This file has to be created by the user. It must be a text file containing a single number (e.g. `32.67`)
