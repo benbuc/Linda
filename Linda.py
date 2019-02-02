@@ -4,7 +4,7 @@ import pickle
 import os
 import os.path
 import utilities
-from LindaService import *
+from LindaService import Service
 from LindaConfig import LindaConfig
 
 # SETUP LOGGING
@@ -13,7 +13,6 @@ log = utilities.getLogger()
 class Linda(object):
 
     def __init__(self):
-        
         log.info("Linda initializing")
 
         self.services = []
