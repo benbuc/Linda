@@ -6,6 +6,7 @@ import os.path
 import utilities
 from LindaService import Service
 from LindaConfig import LindaConfig
+import sys
 
 # SETUP LOGGING
 log = utilities.getLogger()
