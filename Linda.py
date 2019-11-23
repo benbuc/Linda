@@ -10,6 +10,9 @@ from LindaConfig import LindaConfig
 # SETUP LOGGING
 log = utilities.getLogger()
 
+# CHANGE WORKING DIRECTORY
+os.chdir(os.path.dirname(sys.argv[0]))
+
 class Linda(object):
 
     def __init__(self):
