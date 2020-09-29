@@ -11,6 +11,8 @@
 
 5. Setup your Services using `LindaSetup.py` by running: `python3 LindaSetup.py`. Linda will do her best to guide you through the process.
 
+> :warning: **Executing untrusted Services, Triggers or Actions could run arbitrary code**: Linda uses jsonpickle which could run arbitrary code during the deserialization process!
+
 ## `Service`
 
 ## `Trigger`
