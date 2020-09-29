@@ -1,6 +1,6 @@
 # Author: Benito Buchheim
 
-import pickle
+import jsonpickle
 import os.path
 import utilities
 import configparser as cp
@@ -46,8 +46,8 @@ class Service(object):
         """Save service to filepath"""
         destination = os.path.join(self.datapath, self.name+".lise")
         log.debug("Saving service to %s", destination)
-        with open(os.path.join(self.datapath, self.name+".lise"), 'wb') as f:
-            pickle.dump(self, f)
+        with open(destination, 'w') as f:
+            f.write(jsonpickle.encode(self, indent=4))
             
 class Trigger(object):
 
@@ -121,8 +121,7 @@ class DeviationTriggerTwoThresholds(Trigger):
             return "wait_for_threshold"
         
         with open(filepath, 'rb') as f:
-            state = pickle.load(f)
-            return state
+            return jsonpickle.decode(f.read())
 
     def setState(self, state):
         """Set the current trigger state in file"""
@@ -139,8 +138,8 @@ class DeviationTriggerTwoThresholds(Trigger):
             log.debug("Datapath does not exist")
             return
 
-        with open(filepath, 'wb') as f:
-            pickle.dump(state, f)
+        with open(filepath, 'w') as f:
+            f.write(jsonpickle.encode(state, indent=4))
         
         log.debug("Saved state")
         
@@ -167,7 +166,7 @@ class DeviationTriggerTwoThresholds(Trigger):
             if state == "wait_for_threshold" and self.loadCurrent() >= self.triggerThreshold:
                 self.setState("wait_for_reset")
                 return True
-            elif state == "wait_for_reset" and self.loadCurrent() >= self.resetThreshold:
+            elif state == "wait_for_reset" and self.loadCurrent() <= self.resetThreshold:
                 self.setState("wait_for_threshold")
         else:
             log.warning("Trigger and Reset threshold are equal in: %s", self.name)

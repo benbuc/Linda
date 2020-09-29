@@ -1,6 +1,6 @@
 # Author: Benito Buchheim
 
-import pickle
+import jsonpickle
 import os
 import os.path
 import utilities
@@ -49,7 +49,7 @@ class Linda(object):
             # load the service and add to services
             log.debug("Adding service: %s", filename)
             with open(os.path.join(self.datapath, filename), 'rb') as f:
-                self.services.append(pickle.load(f))
+                self.services.append(jsonpickle.decode(f.read()))
 
     def checkAll(self):
         # checks through all services and triggers
