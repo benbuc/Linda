@@ -1,12 +1,13 @@
 # Author: Benito Buchheim
 
-import jsonpickle
 import os
 import os.path
-import utilities
-from LindaService import Service
-from LindaConfig import LindaConfig
 import sys
+
+import jsonpickle
+
+from linda import utilities
+from linda.config import LindaConfig
 
 # SETUP LOGGING
 log = utilities.getLogger()
@@ -14,8 +15,8 @@ log = utilities.getLogger()
 # CHANGE WORKING DIRECTORY
 os.chdir(os.path.dirname(sys.argv[0]))
 
-class Linda(object):
 
+class Linda(object):
     def __init__(self):
         log.info("Linda initializing")
 
@@ -48,7 +49,7 @@ class Linda(object):
 
             # load the service and add to services
             log.debug("Adding service: %s", filename)
-            with open(os.path.join(self.datapath, filename), 'rb') as f:
+            with open(os.path.join(self.datapath, filename), "rb") as f:
                 self.services.append(jsonpickle.decode(f.read()))
 
     def checkAll(self):
@@ -60,6 +61,7 @@ class Linda(object):
 
     def check(self, service):
         service.check()
+
 
 if __name__ == "__main__":
     # version check

@@ -1,18 +1,17 @@
-# Author: Benito Buchheim
+import configparser as cp
+import os.path
+import smtplib
+import socket
+from email.mime import multipart, text
 
 import jsonpickle
-import os.path
-import utilities
-import configparser as cp
-import smtplib
-from email.mime import multipart
-from email.mime import text
-import socket
 
-from LindaConfig import LindaConfig
+from linda import utilities
+from linda.config import LindaConfig
 
 # generate the logger
 log = utilities.getLogger()
+
 
 class Service(object):
 
@@ -30,7 +29,7 @@ class Service(object):
 
     def setTrigger(self, trigger):
         self.trigger = trigger
-    
+
     def setAction(self, action):
         self.action = action
 
@@ -44,21 +43,23 @@ class Service(object):
 
     def save(self):
         """Save service to filepath"""
-        destination = os.path.join(self.datapath, self.name+".lise")
+        destination = os.path.join(self.datapath, self.name + ".lise")
         log.debug("Saving service to %s", destination)
-        with open(destination, 'w') as f:
+        with open(destination, "w") as f:
             f.write(jsonpickle.encode(self, indent=4))
-            
-class Trigger(object):
 
+
+class Trigger(object):
     def __init__(self, datapath, name, **kwargs):
         # datapath holds the path where the trigger is allowed to save
         #   data it needs for the future
-        # name is the same name the service has (every service may have up to one trigger)
-        #   this is used to save persistent data and Linda can remove the trigger
-        #   when the service should be deleted
+        # name is the same name the service has (every service may
+        #   have up to one trigger)
+        #   this is used to save persistent data and Linda can
+        #   remove the trigger when the service should be deleted
         # kwargs holds a variable length dictionary with additional arguments
-        #   (like the thresholds for specific trigger types or the path to input data files)
+        #   (like the thresholds for specific trigger types or the path to
+        #   input data files)
         self.datapath = datapath
         self.name = name
 
@@ -67,8 +68,8 @@ class Trigger(object):
     def isTriggered(self):
         return False
 
-class DeviationTriggerTwoThresholds(Trigger):
 
+class DeviationTriggerTwoThresholds(Trigger):
     def __init__(self, datapath, name, **kwargs):
         super(DeviationTriggerTwoThresholds, self).__init__(datapath, name, **kwargs)
 
@@ -76,9 +77,11 @@ class DeviationTriggerTwoThresholds(Trigger):
         # COPY ARGUMENTS TO INSTANCE VARIABLES #
         ########################################
 
-        # triggerThreshold is the Threshold which has to be reached to start the trigger
+        # triggerThreshold is the Threshold which has to be
+        # reached to start the trigger
         # (then triggers once and waits to return below resetThreshold)
-        # Direction is calculated from both triggers so you can set up the trigger to fire
+        # Direction is calculated from both triggers so you can set up
+        # the trigger to fire
         # when the value rises above or falls below a certain threshold
         self.triggerThreshold = self.kwargs["trigger_threshold"]
         self.resetThreshold = self.kwargs["reset_threshold"]
@@ -92,7 +95,7 @@ class DeviationTriggerTwoThresholds(Trigger):
             log.error("Datafile does not exist: %s", self.datafile)
             return -1
 
-        with open(self.datafile, 'r') as f:
+        with open(self.datafile, "r") as f:
             content = f.read().strip()
 
             try:
@@ -104,14 +107,15 @@ class DeviationTriggerTwoThresholds(Trigger):
         return -1
 
     def getStateFilepath(self):
-        return os.path.join(self.datapath, self.name+".triggerstate")
+        return os.path.join(self.datapath, self.name + ".triggerstate")
 
     def getState(self):
         """Get the current state from file"""
         # State can be:
         #   - wait_for_threshold
         #   - wait_for_reset
-        # If the files is empty or does not exist it will return wait_for_threshold
+        # If the files is empty or does not exist it will
+        #   return wait_for_threshold
 
         log.debug("Loading trigger state")
         filepath = self.getStateFilepath()
@@ -119,8 +123,8 @@ class DeviationTriggerTwoThresholds(Trigger):
         if not os.path.exists(filepath):
             log.debug("Trigger state file does not exist: %s", filepath)
             return "wait_for_threshold"
-        
-        with open(filepath, 'rb') as f:
+
+        with open(filepath, "rb") as f:
             return jsonpickle.decode(f.read())
 
     def setState(self, state):
@@ -130,7 +134,7 @@ class DeviationTriggerTwoThresholds(Trigger):
         log.debug("Setting trigger state")
         filepath = self.getStateFilepath()
 
-        if not state in ["wait_for_threshold", "wait_for_reset"]:
+        if state not in ["wait_for_threshold", "wait_for_reset"]:
             log.error("Unknown trigger state: %s", state)
             return
 
@@ -138,15 +142,14 @@ class DeviationTriggerTwoThresholds(Trigger):
             log.debug("Datapath does not exist")
             return
 
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             f.write(jsonpickle.encode(state, indent=4))
-        
+
         log.debug("Saved state")
-        
 
     def isTriggered(self):
         """Triggers on deviation"""
-        
+
         # check if value exceeds triggers
         # and only trigger when trigger hasn't fired yet
         # otherwise wait for it to return back to reset threshold
@@ -156,25 +159,35 @@ class DeviationTriggerTwoThresholds(Trigger):
         # calculate the direction the current value has to pass the threshold
         if self.triggerThreshold < self.resetThreshold:
             # direction is fall
-            if state == "wait_for_threshold" and self.loadCurrent() <= self.triggerThreshold:
+            if (
+                state == "wait_for_threshold"
+                and self.loadCurrent() <= self.triggerThreshold
+            ):
                 self.setState("wait_for_reset")
                 return True
-            elif state == "wait_for_reset" and self.loadCurrent() >= self.resetThreshold:
+            elif (
+                state == "wait_for_reset" and self.loadCurrent() >= self.resetThreshold
+            ):
                 self.setState("wait_for_threshold")
         elif self.triggerThreshold > self.resetThreshold:
             # direction is rise
-            if state == "wait_for_threshold" and self.loadCurrent() >= self.triggerThreshold:
+            if (
+                state == "wait_for_threshold"
+                and self.loadCurrent() >= self.triggerThreshold
+            ):
                 self.setState("wait_for_reset")
                 return True
-            elif state == "wait_for_reset" and self.loadCurrent() <= self.resetThreshold:
+            elif (
+                state == "wait_for_reset" and self.loadCurrent() <= self.resetThreshold
+            ):
                 self.setState("wait_for_threshold")
         else:
             log.warning("Trigger and Reset threshold are equal in: %s", self.name)
 
         return False
 
-class Action(object):
 
+class Action(object):
     def __init__(self, datapath, name, **kwargs):
         self.datapath = datapath
         self.name = name
@@ -182,6 +195,7 @@ class Action(object):
 
     def trigger(self):
         print("Action triggered")
+
 
 class MailAction(Action):
     """When triggered, it sends an E-Mail to the given recipients."""
@@ -209,7 +223,7 @@ class MailAction(Action):
 
     def trigger(self):
         """Send E-Mail to recipients."""
-        
+
         try:
             server, port, user, password = self.getConfig()
         except cp.NoOptionError as e:
@@ -222,11 +236,11 @@ class MailAction(Action):
         for recipient in self.recipients.split(","):
             log.debug("Constructing E-Mail for %s" % (recipient.strip()))
             msg = multipart.MIMEMultipart()
-            msg['From'] = user
-            msg['To'] = recipient.strip()
-            msg['Subject'] = self.subject
+            msg["From"] = user
+            msg["To"] = recipient.strip()
+            msg["Subject"] = self.subject
 
-            msg.attach(text.MIMEText(self.content, 'plain'))
+            msg.attach(text.MIMEText(self.content, "plain"))
 
             log.debug("Connecting to server")
 
@@ -251,9 +265,11 @@ class MailAction(Action):
 
 
 if __name__ == "__main__":
-    # generate a sample service
-    #serv = Service("data", "temperature_service")
-    #tr = DeviationTriggerTwoThresholds("data", "temperature_service", trigger_threshold=35.0, reset_threshold=38.0, datafile="temp/temperature.txt")
-
-    m = MailAction("data", "test_mail_action", recipients=["benitoalpha@buchheims.de"], subject="Testmail", content="Funktioniert!")
+    m = MailAction(
+        "data",
+        "test_mail_action",
+        recipients=["benitoalpha@buchheims.de"],
+        subject="Testmail",
+        content="Funktioniert!",
+    )
     m.trigger()

@@ -1,13 +1,14 @@
-# Author: Benito Buchheim
-
 # This file holds utility functions for Linda
 import logging
 import sys
 
+
 def getLogger():
     log = logging.getLogger()
     logHandler = logging.StreamHandler()
-    logFormatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
+    logFormatter = logging.Formatter(
+        "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
+    )
     logHandler.setFormatter(logFormatter)
     if len(log.handlers) == 0:
         log.addHandler(logHandler)
@@ -16,7 +17,9 @@ def getLogger():
 
     return log
 
+
 log = getLogger()
+
 
 def checkVersion():
     if sys.version_info.major < 3:

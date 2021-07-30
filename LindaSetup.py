@@ -1,25 +1,24 @@
-# Author: Benito Buchheim
-
 # This Program is used to set up Linda
 # You can create new services or remove services
 
-import sys
 import os
 import os.path
-import configparser
-import utilities
-import LindaService as lise
-from LindaConfig import LindaConfig
+import sys
+
+import linda.service as lise
+from linda import utilities
+from linda.config import LindaConfig
 
 FIRST_ITERATION = True
 
 log = utilities.getLogger()
 
+
 def main():
     input("\nPress ENTER to continue:")
     print("\n")
     print("")
-    print("-"*50)
+    print("-" * 50)
     print("What do you want to do?")
     print("\t[1] List services")
     print("\t[2] Create new service")
@@ -46,6 +45,7 @@ def main():
     else:
         print("Unknown action")
 
+
 def getDatapath():
     log.debug("Getting datapath from config")
     config = LindaConfig()
@@ -59,6 +59,7 @@ def getDatapath():
 
     return datapath
 
+
 def listServices():
     print("Listing all services:")
     for filename in os.listdir(getDatapath()):
@@ -66,6 +67,7 @@ def listServices():
             continue
 
         print("\t%s" % ".".join(filename.split(".")[:-1]))
+
 
 def removeService():
     listServices()
@@ -77,7 +79,7 @@ def removeService():
 
     deletions = 0
     for filename in os.listdir(datapath):
-        if filename.startswith(name+"."):
+        if filename.startswith(name + "."):
             deletions += 1
             log.debug("Deleting %s" % filename)
             os.remove(os.path.join(datapath, filename))
@@ -120,7 +122,7 @@ def createNewService():
     else:
         print("Unknown action type")
         return
-    
+
     datapath = getDatapath()
     service = lise.Service(datapath, name)
     service.setTrigger(trigger)
@@ -141,15 +143,16 @@ def setupDeviationTriggerTwoThresholds(datapath, name):
         except ValueError:
             print("Invalid input. Please try again")
             continue
-    
+
     kwargs = {
-        "trigger_threshold" : triggerThreshold,
-        "reset_threshold"   : resetThreshold,
-        "datafile"          : datafile
+        "trigger_threshold": triggerThreshold,
+        "reset_threshold": resetThreshold,
+        "datafile": datafile,
     }
     trigger = lise.DeviationTriggerTwoThresholds(datapath, name, **kwargs)
 
     return trigger
+
 
 def setupMailAction(datapath, name):
     hasData = False
@@ -163,14 +166,10 @@ def setupMailAction(datapath, name):
             print("Invalid input. Please try again")
             continue
 
-    kwargs = {
-        "recipients"    : recipients,
-        "subject"       : subject,
-        "content"       : content
-    }
+    kwargs = {"recipients": recipients, "subject": subject, "content": content}
     return lise.MailAction(datapath, name, **kwargs)
 
-    
+
 if __name__ == "__main__":
     utilities.checkVersion()
     print("Hi, I am Linda. Have a great day")
