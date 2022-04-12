@@ -4,7 +4,7 @@
 
 1. Download Linda: `git clone https://www.github.com/benbuc/Linda.git` and `cd` into the newly created folder.
 
-2. Copy `.env_example`to `.env` and put email settings
+2. Copy `.env_example`to `.env` and put in email settings
 
 3. Optionall install [poetry](https://github.com/python-poetry/poetry) if not already installed.
    ```bash
